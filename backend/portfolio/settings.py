@@ -58,7 +58,9 @@ ROOT_URLCONF = 'portfolio.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-       'DIRS': [os.path.join(BASE_DIR, '../frontend/saurabh-portfolio/dist')],
+       'DIRS': [
+            os.path.join(PROJECT_ROOT, 'frontend', 'saurabh-portfolio', 'dist')
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
