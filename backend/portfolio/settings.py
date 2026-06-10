@@ -15,7 +15,6 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
- 
 
 # Ek level upar jaane ke liye (Portfolios root directory tak pahunchne ke liye)
 PROJECT_ROOT = BASE_DIR.parent
@@ -61,9 +60,7 @@ ROOT_URLCONF = 'portfolio.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-       'DIRS': [
-            os.path.join(PROJECT_ROOT, 'frontend', 'saurabh-portfolio', 'dist')
-        ],
+        'DIRS': [], # Isko khali kar do
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -74,6 +71,17 @@ TEMPLATES = [
             ],
         },
     },
+]
+
+# Static files settings ko wapas default kar do
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS = [] # Frontend ka path yahan se hata do
+
+# CORS_ALLOWED_ORIGINS me apne naye frontend ka URL daal dena jab wo deploy ho jaye
+CORS_ALLOWED_ORIGINS = [
+    "https://saurabh-portfolio-frontend.onrender.com", # Jo Render frontend ka URL milega
+    "http://localhost:5173",
 ]
 
 WSGI_APPLICATION = 'portfolio.wsgi.application'
