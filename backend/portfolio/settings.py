@@ -10,6 +10,7 @@ DEBUG = False
 ALLOWED_HOSTS = ['*'] # Taaki Render ke saare domains automatically catch ho jayein
 
 INSTALLED_APPS = [
+     'rest_framework',
     'corsheaders',
     'myapp',
     'django.contrib.admin',
@@ -34,12 +35,14 @@ MIDDLEWARE = [
 
 CORS_ALLOW_ALL_ORIGINS = True
 ROOT_URLCONF = 'portfolio.urls'
-
+CORS_ALLOWED_ORIGINS=[
+"https://my-portfolio-3xdu.onrender.com"
+]
 # Django ab seedhe frontend ki html file uthayega
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(PROJECT_ROOT, 'frontend', 'saurabh-portfolio', 'dist')],
+        'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -61,14 +64,8 @@ DATABASES = {
     }
 }
 
-# Static Files System
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-
-# Django ko assets ka rasta batana
-STATICFILES_DIRS = [
-    os.path.join(PROJECT_ROOT, 'frontend', 'saurabh-portfolio', 'dist'),
-]
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
