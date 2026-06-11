@@ -10,10 +10,11 @@ def home(request):
         "message":"Back"
     })
  
-
 @csrf_exempt
 def contact_api(request):
+
     if request.method == "POST":
+
         data = json.loads(request.body)
 
         contact = Contact.objects.create(
@@ -22,24 +23,11 @@ def contact_api(request):
             message=data["message"]
         )
 
-        send_mail(
-            subject=f"New Portfolio Contact from {contact.name}",
-            message=f"""
-Name: {contact.name}
-
-Email: {contact.email}
-
-Message:
-{contact.message}
-""",
-            from_email=None,
-            recipient_list=["saurabhmauryajnp28@gmail.com"],
-            fail_silently=False,
-        )
-
         return JsonResponse({
             "success": True,
-            "message": "Message saved and email sent successfully"
+            "message": "Message saved successfully"
         })
 
-    return JsonResponse({"error": "Invalid request"})
+    return JsonResponse({
+        "error": "Invalid request"
+    })
