@@ -31,10 +31,9 @@ export function Contact() {
   e.preventDefault();
 
   setLoading(true);
-
+const API_URL = "https://my-portfolio1-pmn0.onrender.com";
   try {
-    const response = await fetch(
-      "/api/contact/",
+    const response = await fetch(`${API_URL}/api/contact/`,
       {
         method: "POST",
         headers: {
