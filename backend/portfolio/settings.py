@@ -33,7 +33,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True
+
 ROOT_URLCONF = 'portfolio.urls'
 CORS_ALLOWED_ORIGINS=[
 "https://my-portfolio-3xdu.onrender.com"
