@@ -5,7 +5,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 PROJECT_ROOT = BASE_DIR.parent
 
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-fallback-key-saurabh')
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*'] # Taaki Render ke saare domains automatically catch ho jayein
 
