@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Download, Menu, X } from "lucide-react";
-import { RESUME_URL } from "@/lib/portfolio-data";
+import resumeFile from '../../assets/Saurabh_Maurya.pdf';
 
 const links = [
   { label: "About", href: "#about" },
@@ -43,6 +43,7 @@ export function Navbar() {
             </span>
             <span className="hidden sm:inline">Saurabh Maurya</span>
           </a>
+          
           <div className="hidden items-center gap-1 md:flex">
             {links.map((l) => (
               <a
@@ -54,10 +55,11 @@ export function Navbar() {
               </a>
             ))}
           </div>
+          
           <div className="flex items-center gap-2">
             <a
-              href={RESUME_URL}
-              download
+              href={resumeFile}
+              download="Saurabh_Maurya_Resume.pdf"
               className="hidden items-center gap-2 rounded-lg bg-gradient-to-r from-primary to-accent px-4 py-2 text-sm font-medium text-primary-foreground transition-transform hover:scale-105 sm:inline-flex"
             >
               <Download className="h-4 w-4" />
@@ -72,6 +74,7 @@ export function Navbar() {
             </button>
           </div>
         </nav>
+        
         {open && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -89,8 +92,8 @@ export function Navbar() {
               </a>
             ))}
             <a
-              href={RESUME_URL}
-              download
+              href={resumeFile}
+              download="Saurabh_Maurya_Resume.pdf"
               className="mt-1 inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-primary to-accent px-4 py-2 text-sm font-medium text-primary-foreground"
             >
               <Download className="h-4 w-4" /> Download Resume
