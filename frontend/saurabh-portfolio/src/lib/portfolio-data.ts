@@ -13,6 +13,7 @@ import html_css_js from "@/assets/html_css_js.jpg";
 import freedom_with_ai from "@/assets/freedom_with_ai.jpg";
 import ppt_winner from "@/assets/ppt_winner.jpg";
 import Python from "@/assets/Python.jpg";
+import nextvisit from "@/assets/nextvisit.png";
 
 export const heroStats = [
   { label: "GATE 2026 AIR", value: "7409" },
@@ -67,6 +68,39 @@ export type Project = {
 };
 
 export const projects: Project[] = [
+  {
+  title: "NextVisit CRM",
+  description: "A full-stack CRM platform for salons and restaurants with bookings, customer management, loyalty, payments, automation and QR-based ordering.",
+  longDescription:
+    "NextVisit is a multi-business CRM platform designed to help salons and restaurants manage customers, visits, bookings, loyalty programs, payments, campaigns and day-to-day operations from one platform.",
+  image: "nextvisit",
+  status: "Live",
+  duration: "Ongoing",
+  responsive: true,
+  highlight: "Full-Stack CRM Platform",
+  tech: [
+    "React",
+    "TypeScript",
+    "Vite",
+    "FastAPI",
+    "PostgreSQL",
+    "Supabase",
+    "Tailwind CSS"
+  ],
+  features: [
+    "Customer & Visit Management",
+    "Online Booking",
+    "Loyalty Program",
+    "QR-based Restaurant Ordering",
+    "Payment & Invoice Management",
+    "Marketing Automation",
+    "Salon & Restaurant Dashboards",
+    "Subscription Management"
+  ],
+  challenges:
+    "Built a multi-business platform with separate salon and restaurant workflows, dynamic dashboards, QR ordering, payment flows and automation while keeping the architecture scalable.",
+  demo: "https://nextvisit-frontend.onrender.com"
+},
   {
     title: "AI Voice Assistant (Jarvis)",
     description:
