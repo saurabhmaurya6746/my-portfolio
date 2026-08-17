@@ -1,5 +1,5 @@
-import { useState, type FormEvent } from "react";
-import { motion } from "framer-motion";
+import { useState, useRef, useEffect, type FormEvent } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Copy, Check, Download, Github, Linkedin, Mail, Phone, Send } from "lucide-react";
 import { contact, RESUME_URL } from "@/lib/portfolio-data";
 import { Section } from "./Section";
@@ -26,26 +26,69 @@ function CopyButton({ value }: { value: string }) {
 export function Contact() {
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [form, setForm] = useState({ name: "", email: "", message: "" });
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+    };
+  }, []);
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (loading) return;
 
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+    }
+
+    const trimmedName = form.name.trim();
+    const trimmedEmail = form.email.trim();
+    const trimmedMessage = form.message.trim();
+
+    // Client-side validation
+    if (!trimmedName) {
+      setErrorMessage("Please enter your name.");
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!trimmedEmail || !emailRegex.test(trimmedEmail)) {
+      setErrorMessage("Please enter a valid email address.");
+      return;
+    }
+    if (!trimmedMessage) {
+      setErrorMessage("Please enter your message.");
+      return;
+    }
+
     setLoading(true);
     setErrorMessage(null);
+    setSuccessMessage(null);
 
     try {
-      const data = await sendContactMessage(form);
+      const data = await sendContactMessage({
+        name: trimmedName,
+        email: trimmedEmail,
+        message: trimmedMessage,
+      });
+
       if (data && data.success) {
         setSent(true);
+        setSuccessMessage("Thank you for contacting me! I'll get back to you soon.");
         setForm({
           name: "",
           email: "",
           message: "",
         });
-        setTimeout(() => setSent(false), 6000);
+        timerRef.current = setTimeout(() => {
+          setSent(false);
+          setSuccessMessage(null);
+        }, 4000);
       } else {
         setErrorMessage(data?.error || "Unable to send your message. Please try again or contact me directly by email.");
       }
@@ -56,6 +99,8 @@ export function Contact() {
       setLoading(false);
     }
   };
+
+
 
 
   return (
@@ -162,11 +207,32 @@ export function Contact() {
               : "Send Message"}
           </button>
 
-          {errorMessage && (
-            <p className="mt-3 text-xs text-red-400 font-medium">
-              {errorMessage}
-            </p>
-          )}
+          <AnimatePresence>
+            {successMessage && (
+              <motion.div
+                initial={{ opacity: 0, y: 10, height: 0 }}
+                animate={{ opacity: 1, y: 0, height: "auto" }}
+                exit={{ opacity: 0, y: -10, height: 0 }}
+                transition={{ duration: 0.3 }}
+                className="mt-4 flex items-center gap-2.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-xs font-medium text-emerald-400 overflow-hidden"
+              >
+                <Check className="h-4 w-4 shrink-0" />
+                <span>{successMessage}</span>
+              </motion.div>
+            )}
+
+            {errorMessage && (
+              <motion.div
+                initial={{ opacity: 0, y: 10, height: 0 }}
+                animate={{ opacity: 1, y: 0, height: "auto" }}
+                exit={{ opacity: 0, y: -10, height: 0 }}
+                transition={{ duration: 0.3 }}
+                className="mt-4 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-xs font-medium text-rose-400 overflow-hidden"
+              >
+                {errorMessage}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.form>
       </div>
     </Section>

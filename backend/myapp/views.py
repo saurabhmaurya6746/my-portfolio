@@ -126,10 +126,10 @@ def contact_api(request):
     if not message:
         return JsonResponse({"success": False, "error": "Message is required."}, status=400)
 
-    # Save to SQLite database
+    # 1. ALWAYS Save to Django Database First
     contact = Contact.objects.create(name=name, email=email, message=message)
 
-    # Compose clean email
+    # 2. Attempt to send email notification
     subject = "New Portfolio Contact Message"
     body = f"""New message from your portfolio website
 
@@ -142,7 +142,7 @@ Message:
     recipient = getattr(settings, "CONTACT_RECIPIENT_EMAIL", "saurabhmauryajnp28@gmail.com")
     from_email = getattr(settings, "DEFAULT_FROM_EMAIL", recipient)
 
-    # Attempt to send email via SMTP
+    email_sent = False
     try:
         email_msg = EmailMessage(
             subject=subject,
@@ -152,15 +152,17 @@ Message:
             reply_to=[email],
         )
         email_msg.send(fail_silently=False)
-        return JsonResponse({
-            "success": True,
-            "message": "Message sent successfully."
-        })
+        email_sent = True
+        logger.info(f"Contact email successfully sent for submission ID {contact.id}")
     except Exception as e:
-        logger.error(f"Error sending contact email: {e}")
-        return JsonResponse({
-            "success": False,
-            "error": "Failed to send email. Please ensure SMTP credentials are configured.",
-            "details": str(e) if settings.DEBUG else None
-        }, status=500)
+        logger.warning(f"Contact submission ID {contact.id} saved in database, but notification email could not be sent: {e}")
+
+    # 3. Always return a success response (HTTP 200) because the message is safely stored in the database
+    return JsonResponse({
+        "success": True,
+        "message": "Message sent successfully." if email_sent else "Message received and saved successfully.",
+        "email_sent": email_sent,
+        "id": contact.id,
+    }, status=200)
+
 
