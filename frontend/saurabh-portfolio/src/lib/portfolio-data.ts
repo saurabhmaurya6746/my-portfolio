@@ -73,7 +73,7 @@ export const projects: Project[] = [
   description: "A full-stack CRM platform for salons and restaurants with bookings, customer management, loyalty, payments, automation and QR-based ordering.",
   longDescription:
     "NextVisit is a multi-business CRM platform designed to help salons and restaurants manage customers, visits, bookings, loyalty programs, payments, campaigns and day-to-day operations from one platform.",
-  image: "nextvisit",
+  image: nextvisit,
   status: "Live",
   duration: "Ongoing",
   responsive: true,
