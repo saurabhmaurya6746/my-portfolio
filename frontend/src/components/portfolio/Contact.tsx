@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, type FormEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Copy, Check, Download, Github, Linkedin, Mail, Phone, Send } from "lucide-react";
+import { Copy, Check, Download, Github, Linkedin, Mail, Phone, Send, Loader2 } from "lucide-react";
 import { contact, RESUME_URL } from "@/lib/portfolio-data";
 import { Section } from "./Section";
 import resumeFile from '../../assets/Saurabh_Maurya.pdf';
@@ -198,13 +198,22 @@ export function Contact() {
             disabled={loading}
             className="mt-5 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary to-accent px-6 py-3 text-sm font-semibold text-primary-foreground transition-transform hover:scale-[1.02] disabled:opacity-60 disabled:pointer-events-none"
           >
-            <Send className="h-4 w-4" />
-
-            {loading
-              ? "Sending..."
-              : sent
-              ? "Message Sent ✓"
-              : "Send Message"}
+            {loading ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span>Sending...</span>
+              </>
+            ) : sent ? (
+              <>
+                <Check className="h-4 w-4 text-emerald-300" />
+                <span>Message Sent ✓</span>
+              </>
+            ) : (
+              <>
+                <Send className="h-4 w-4" />
+                <span>Send Message</span>
+              </>
+            )}
           </button>
 
           <AnimatePresence>

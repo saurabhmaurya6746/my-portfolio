@@ -1,5 +1,6 @@
 import json
 import logging
+import traceback
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
@@ -104,34 +105,41 @@ def contact_api(request):
         return JsonResponse({"success": False, "error": "Method not allowed"}, status=405)
 
     try:
-        data = json.loads(request.body)
-    except Exception:
-        return JsonResponse({"success": False, "error": "Invalid JSON format"}, status=400)
+        try:
+            data = json.loads(request.body)
+        except Exception:
+            return JsonResponse({"success": False, "error": "Invalid JSON format"}, status=400)
 
-    name = str(data.get("name", "")).strip()
-    email = str(data.get("email", "")).strip()
-    message = str(data.get("message", "")).strip()
+        name = str(data.get("name", "")).strip()
+        email = str(data.get("email", "")).strip()
+        message = str(data.get("message", "")).strip()
 
-    if not name:
-        return JsonResponse({"success": False, "error": "Name is required."}, status=400)
+        if not name:
+            return JsonResponse({"success": False, "error": "Name is required."}, status=400)
 
-    if not email:
-        return JsonResponse({"success": False, "error": "Email is required."}, status=400)
+        if not email:
+            return JsonResponse({"success": False, "error": "Email is required."}, status=400)
 
-    try:
-        validate_email(email)
-    except ValidationError:
-        return JsonResponse({"success": False, "error": "Invalid email address."}, status=400)
+        try:
+            validate_email(email)
+        except ValidationError:
+            return JsonResponse({"success": False, "error": "Invalid email address."}, status=400)
 
-    if not message:
-        return JsonResponse({"success": False, "error": "Message is required."}, status=400)
+        if not message:
+            return JsonResponse({"success": False, "error": "Message is required."}, status=400)
 
-    # 1. ALWAYS Save to Django Database First
-    contact = Contact.objects.create(name=name, email=email, message=message)
+        # 1. ALWAYS Save to Django Database First
+        contact_id = None
+        try:
+            contact = Contact.objects.create(name=name, email=email, message=message)
+            contact_id = contact.id
+            logger.info(f"Contact submission saved to database with ID {contact_id}")
+        except Exception as db_err:
+            logger.error(f"Database save error: {db_err}\n{traceback.format_exc()}")
 
-    # 2. Attempt to send email notification
-    subject = "New Portfolio Contact Message"
-    body = f"""New message from your portfolio website
+        # 2. Attempt to send email notification
+        subject = "New Portfolio Contact Message"
+        body = f"""New message from your portfolio website
 
 Name: {name}
 Email: {email}
@@ -139,30 +147,38 @@ Email: {email}
 Message:
 {message}
 """
-    recipient = getattr(settings, "CONTACT_RECIPIENT_EMAIL", "saurabhmauryajnp28@gmail.com")
-    from_email = getattr(settings, "DEFAULT_FROM_EMAIL", recipient)
+        recipient = getattr(settings, "CONTACT_RECIPIENT_EMAIL", "saurabhmauryajnp28@gmail.com")
+        from_email = getattr(settings, "DEFAULT_FROM_EMAIL", recipient)
 
-    email_sent = False
-    try:
-        email_msg = EmailMessage(
-            subject=subject,
-            body=body,
-            from_email=from_email,
-            to=[recipient],
-            reply_to=[email],
-        )
-        email_msg.send(fail_silently=False)
-        email_sent = True
-        logger.info(f"Contact email successfully sent for submission ID {contact.id}")
-    except Exception as e:
-        logger.warning(f"Contact submission ID {contact.id} saved in database, but notification email could not be sent: {e}")
+        email_sent = False
+        try:
+            email_msg = EmailMessage(
+                subject=subject,
+                body=body,
+                from_email=from_email,
+                to=[recipient],
+                reply_to=[email],
+            )
+            email_msg.send(fail_silently=False)
+            email_sent = True
+            logger.info(f"Contact email successfully sent to {recipient}")
+        except Exception as mail_err:
+            logger.warning(f"Contact notification email could not be sent: {mail_err}\n{traceback.format_exc()}")
 
-    # 3. Always return a success response (HTTP 200) because the message is safely stored in the database
-    return JsonResponse({
-        "success": True,
-        "message": "Message sent successfully." if email_sent else "Message received and saved successfully.",
-        "email_sent": email_sent,
-        "id": contact.id,
-    }, status=200)
+        # 3. Always return a success response (HTTP 200)
+        return JsonResponse({
+            "success": True,
+            "message": "Thank you for contacting me! I'll get back to you soon.",
+            "email_sent": email_sent,
+            "id": contact_id,
+        }, status=200)
+
+    except Exception as top_err:
+        logger.error(f"Unhandled error in contact_api: {top_err}\n{traceback.format_exc()}")
+        return JsonResponse({
+            "success": False,
+            "error": "Unable to send your message. Please try again or contact me directly by email."
+        }, status=500)
+
 
 
