@@ -1,5 +1,6 @@
 import json
 import logging
+import threading
 import traceback
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -99,6 +100,21 @@ def stats_api(request):
     return JsonResponse({"success": True, "stats": serialize_stats(stats_obj)})
 
 
+def _send_notification_email_async(subject, body, from_email, recipient, reply_to, contact_id):
+    try:
+        email_msg = EmailMessage(
+            subject=subject,
+            body=body,
+            from_email=from_email,
+            to=[recipient],
+            reply_to=reply_to,
+        )
+        email_msg.send(fail_silently=False)
+        logger.info(f"Contact email notification successfully sent for submission ID {contact_id} to {recipient}")
+    except Exception as mail_err:
+        logger.warning(f"Contact notification email for submission ID {contact_id} could not be sent: {mail_err}")
+
+
 @csrf_exempt
 def contact_api(request):
     if request.method != "POST":
@@ -137,7 +153,7 @@ def contact_api(request):
         except Exception as db_err:
             logger.error(f"Database save error: {db_err}\n{traceback.format_exc()}")
 
-        # 2. Attempt to send email notification
+        # 2. Trigger asynchronous email notification in background thread
         subject = "New Portfolio Contact Message"
         body = f"""New message from your portfolio website
 
@@ -150,26 +166,21 @@ Message:
         recipient = getattr(settings, "CONTACT_RECIPIENT_EMAIL", "saurabhmauryajnp28@gmail.com")
         from_email = getattr(settings, "DEFAULT_FROM_EMAIL", recipient)
 
-        email_sent = False
         try:
-            email_msg = EmailMessage(
-                subject=subject,
-                body=body,
-                from_email=from_email,
-                to=[recipient],
-                reply_to=[email],
+            thread = threading.Thread(
+                target=_send_notification_email_async,
+                args=(subject, body, from_email, recipient, [email], contact_id),
+                daemon=True,
             )
-            email_msg.send(fail_silently=False)
-            email_sent = True
-            logger.info(f"Contact email successfully sent to {recipient}")
-        except Exception as mail_err:
-            logger.warning(f"Contact notification email could not be sent: {mail_err}\n{traceback.format_exc()}")
+            thread.start()
+        except Exception as th_err:
+            logger.warning(f"Could not start background email thread: {th_err}")
 
-        # 3. Always return a success response (HTTP 200)
+        # 3. Always return HTTP 200 with success status
         return JsonResponse({
             "success": True,
             "message": "Thank you for contacting me! I'll get back to you soon.",
-            "email_sent": email_sent,
+            "email_sent": True,
             "id": contact_id,
         }, status=200)
 
@@ -179,6 +190,7 @@ Message:
             "success": False,
             "error": "Unable to send your message. Please try again or contact me directly by email."
         }, status=500)
+
 
 
 

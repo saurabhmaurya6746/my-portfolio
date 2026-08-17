@@ -148,4 +148,6 @@ EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', os.getenv('SMTP_USE_TLS', 'True')).lo
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', os.getenv('SMTP_USER', 'saurabhmauryajnp28@gmail.com'))
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', os.getenv('SMTP_PASSWORD', ''))
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
-CONTACT_RECIPIENT_EMAIL = os.getenv('CONTACT_EMAIL', os.getenv('CONTACT_RECIPIENT_EMAIL', 'saurabhmauryajnp28@gmail.com'))
+CONTACT_RECIPIENT_EMAIL = os.getenv('CONTACT_EMAIL', os.getenv('CONTACT_RECIPIENT_EMAIL', 'saurabhmauryajnp28@gmail.com'))
+EMAIL_TIMEOUT = int(os.getenv('EMAIL_TIMEOUT', 5))
+
