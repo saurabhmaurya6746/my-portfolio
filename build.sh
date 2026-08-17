@@ -3,16 +3,13 @@
 set -o errexit
 
 echo "--- Building Frontend (React + Vite) ---"
-cd frontend/saurabh-portfolio
+cd frontend
 npm install
 npm run build
 
 echo "--- Building Backend (Django) ---"
-cd ../../backend
+cd ../backend
 pip install -r requirements.txt
 
-# Collect static files including React build
-python manage.py collectstatic --noinput
-
-# Run migrations (optional but recommended if using DB)
-python manage.py migrate
+# Run migrations
+python manage.py migrate
