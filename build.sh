@@ -11,5 +11,8 @@ echo "--- Building Backend (Django) ---"
 cd ../backend
 pip install -r requirements.txt
 
+# Collect static files for Django Admin & WhiteNoise
+python manage.py collectstatic --noinput
+
 # Run migrations
 python manage.py migrate
